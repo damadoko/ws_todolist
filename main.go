@@ -26,7 +26,7 @@ type (
 	// ClientRequest store request from client
 	ClientRequest struct {
 		Type   string `json:"type,omitempty"` // type: add, delete, clear, changeFilter, setComplete
-		LoadID []int  `json:"loadID,omitempty"` //loadID = [1, 2] -> ID: 0, taskID: 2
+		LoadID [2]int  `json:"loadID,omitempty"` //loadID = [1, 2] -> ID: 0, taskID: 2
 		Filter string `json:"filter,omitempty"`
 		Todo   Todo   `json:"todo,omitempty"`
 	}
@@ -43,10 +43,12 @@ var updatedState = ClientResponse{
 }
 
 func main() {
-	fmt.Println("Hello, World")
+	fmt.Println("Server running...")
+	http.HandleFunc("/ws", wsHandler)
+	log.Fatal(http.ListenAndServe(":8001", nil)) 
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -71,11 +73,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			
 		case "clear":
 			updatedState.clearTodo()
+
 		case "changeFilter":
 			updatedState.Filter = clientReq.Filter	
-		case "setComplete":
-			updatedState.toggleComplete(clientReq.LoadID[0])
 
+		case "completeTodo":
+			updatedState.toggleCompleteTodo(clientReq.LoadID[0])
+
+		case "completeTask":
+			updatedState.toggleCompleteTask(clientReq.LoadID)
+			
+		case "delTask":
+			updatedState.deletetask(clientReq.LoadID)
 
 			*clientResp = updatedState
 		}

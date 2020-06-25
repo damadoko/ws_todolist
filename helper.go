@@ -27,10 +27,38 @@ func (c ClientResponse) clearTodo() {
 			c.Todos = c.Todos[:j]
 }
 
-func (c ClientResponse) toggleComplete(id int)  {
+func (c ClientResponse) toggleCompleteTodo(id int)  {
 	for i, t := range c.Todos {
 		if t.ID == id {
 			c.Todos[i].Completed = !c.Todos[i].Completed
 		}
 	}	
+}
+
+func (c ClientResponse) toggleCompleteTask(loadID [2]int)  {
+	// Loop through Todos list -> find selected Todo -> loop through selected todo 
+	// -> find selected task -> toggle selected task status
+	for i, todo := range c.Todos {
+		if todo.ID == loadID[0] {
+		 for j, task := range c.Todos[i].Tasks {
+				if task.TaskID == loadID[1] {
+					c.Todos[i].Tasks[j].IsDone = !c.Todos[i].Tasks[j].IsDone	
+				}	
+			}	
+		}
+	}	
+}
+
+func (c ClientResponse) deletetask(loadID [2]int)  {
+	// Loop through Todos list -> find selected Todo -> loop through selected todo 
+	// -> find selected task -> delete selected task 
+	for i, todo := range c.Todos {
+		if todo.ID == loadID[0] {
+			for j, task := range c.Todos[i].Tasks {
+				if task.TaskID == loadID[1] {
+					c.Todos[i].Tasks = append(c.Todos[i].Tasks[:j], c.Todos[i].Tasks[j+1:]...) 
+				}
+			}
+		}
+	}
 }
