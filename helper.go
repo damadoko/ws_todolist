@@ -1,6 +1,6 @@
 package main
 
-func createID(c ClientResponse) int {
+func createID(c *ClientResponse) int {
 	// Create newID = lasted Todos ID + 1
 	if index := len(c.Todos); index > 0 {
 		return c.Todos[index].ID + 1 

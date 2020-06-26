@@ -37,13 +37,16 @@ type (
 	}
 )
 var upgrader websocket.Upgrader
-var updatedState = ClientResponse{
+var updatedState = &ClientResponse{
 	Filter: "all",
 	Todos: []Todo{} ,
 }
 
 func main() {
 	fmt.Println("Server running...")
+	upgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
+	}
 	http.HandleFunc("/ws", wsHandler)
 	log.Fatal(http.ListenAndServe(":8001", nil)) 
 }
@@ -65,6 +68,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		clientResp := &ClientResponse{}
 		switch clientReq.Type {
 		case "add":
+			fmt.Printf("Client's request %#v", clientReq )
 			clientReq.Todo.ID = createID(updatedState)
 			updatedState.Todos = append(updatedState.Todos, clientReq.Todo)	
 
@@ -82,11 +86,12 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 		case "completeTask":
 			updatedState.toggleCompleteTask(clientReq.LoadID)
-			
+
 		case "delTask":
 			updatedState.deletetask(clientReq.LoadID)
-
-			*clientResp = updatedState
+		log.Println("Client's response:", clientReq )
+		// Default case or initial data for client
+		clientResp = updatedState
 		}
 		if err := conn.WriteJSON(clientResp); err != nil {
 						log.Println(err)
