@@ -20,7 +20,7 @@ type (
 		ID         int    `json:"id"`
 		Title      string `json:"title"`
 		Completed  bool   `json:"completed"`
-		Percentage int    `json:"percentage"`
+		Percentage float64`json:"percentage"`
 		Tasks      []Task `json:"tasks"`
 	}
 	// ClientRequest store request from client
@@ -68,9 +68,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		clientResp := &ClientResponse{}
 		switch clientReq.Type {
 		case "add":
-			fmt.Printf("Client's request %#v", clientReq )
+			fmt.Printf("Client's request %#v", *clientReq )
 			clientReq.Todo.ID = createID(updatedState)
-			updatedState.Todos = append(updatedState.Todos, clientReq.Todo)	
+			(*updatedState).Todos = append((*updatedState).Todos, (*clientReq).Todo)	
 
 		case "delete":
 			updatedState.deleteTodo(clientReq.LoadID[0])
@@ -89,10 +89,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 		case "delTask":
 			updatedState.deletetask(clientReq.LoadID)
-		log.Println("Client's response:", clientReq )
-		// Default case or initial data for client
-		clientResp = updatedState
 		}
+		// Default case or initial data for client
+		// fmt.Printf("Client's response:%#v", *clientResp )
+	*clientResp = *updatedState
 		if err := conn.WriteJSON(clientResp); err != nil {
 						log.Println(err)
 						return
