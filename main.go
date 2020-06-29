@@ -68,7 +68,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		clientResp := &ClientResponse{}
 		switch clientReq.Type {
 		case "add":
-			fmt.Printf("Client's request %#v", *clientReq )
+			// fmt.Printf("Client's request %#v", *clientReq )
 			clientReq.Todo.ID = createID(updatedState)
 			(*updatedState).Todos = append((*updatedState).Todos, (*clientReq).Todo)	
 
